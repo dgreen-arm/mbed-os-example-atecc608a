@@ -47,13 +47,29 @@
         status = PSA_SUCCESS;                                       \
     } while(0)
 
+#define ASSERT_STATUS_PSA(expression, expected, psa_error)          \
+    do                                                              \
+    {                                                               \
+        psa_status_t ASSERT_result = (expression);                  \
+        psa_status_t ASSERT_expected = (expected);                  \
+        if ((ASSERT_result) != (ASSERT_expected))                   \
+        {                                                           \
+            printf("assertion failed at %s:%d "                     \
+                   "(actual=%d expected=%d)\n", __FILE__, __LINE__, \
+                   ASSERT_result, ASSERT_expected);                 \
+            status = (psa_error);                                   \
+            goto exit;                                              \
+        }                                                           \
+        status = PSA_SUCCESS;                                       \
+    } while(0)
+
 /** Check if an ATCA operation is successful, translate the error otherwise. */
 #define ASSERT_SUCCESS(expression) ASSERT_STATUS(expression, ATCA_SUCCESS, \
                                       atecc608a_to_psa_error(ASSERT_result))
 
 /** Does the same as the macro above, but without the error translation and for
  *  the PSA return code - PSA_SUCCESS.*/
-#define ASSERT_SUCCESS_PSA(expression) ASSERT_STATUS(expression, PSA_SUCCESS, \
+#define ASSERT_SUCCESS_PSA(expression) ASSERT_STATUS_PSA(expression, PSA_SUCCESS, \
                                                      ASSERT_result)
 
 psa_status_t atecc608a_get_serial_number(uint8_t *buffer, size_t buffer_size,
